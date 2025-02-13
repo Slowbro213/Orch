@@ -16,11 +16,11 @@ logging.basicConfig(level=os.getenv('LOG_LEVEL', 'INFO'), format='%(asctime)s - 
 app = Flask(__name__)
 
 # Configuration from environment variables
-EXECUTION_TIMEOUT = int(os.getenv('EXECUTION_TIMEOUT', 5))
-PYTHON_IMAGE = os.getenv('PYTHON_IMAGE', 'python:3.13-alpine')
-GCC_IMAGE = os.getenv('GCC_IMAGE', 'gcc:latest')
-OPENJDK_IMAGE = os.getenv('OPENJDK_IMAGE', 'openjdk:alpine')
-CONTAINER_MEMORY_LIMIT = os.getenv('CONTAINER_MEMORY_LIMIT', '100m')
+EXECUTION_TIMEOUT = int(os.getenv('EXECUTION_TIMEOUT', 10))
+PYTHON_IMAGE = os.getenv('PYTHON_IMAGE', 'python:3.13-slim')
+GCC_IMAGE = os.getenv('GCC_IMAGE', 'gcc')
+OPENJDK_IMAGE = os.getenv('OPENJDK_IMAGE', 'openjdk')
+CONTAINER_MEMORY_LIMIT = os.getenv('CONTAINER_MEMORY_LIMIT', '50m')
 CONTAINER_CPU_LIMIT = float(os.getenv('CONTAINER_CPU_LIMIT', '0.5'))
 
 # Language configurations
@@ -64,7 +64,7 @@ def execute_code():
         complete_code = config["code_order"](user_code, template)
         
         # Create a temporary directory for the code and binary
-        temp_dir = f"/tmp/{uuid.uuid4()}"
+        temp_dir = f"/dev/shm/{uuid.uuid4()}"
         os.makedirs(temp_dir, exist_ok=True)
         code_path = os.path.join(temp_dir, f"user_code{config['file_ext']}")
         
@@ -111,11 +111,10 @@ def execute_code():
             run_cmd = [
               'docker', 'run', '--name', container_name, '--rm',
               '--cap-drop=ALL', '--security-opt=no-new-privileges', '--read-only',
-              '--tmpfs', '/tmp',  # Writable /tmp for temporary files
+              '--tmpfs', '/dev/shm',  # Writable /dev/shm for temporary files
               '-v', f'{temp_dir}:/usr/src/app:ro',  # Mount /usr/src/app as read-only
               f'--memory={CONTAINER_MEMORY_LIMIT}', f'--cpus={CONTAINER_CPU_LIMIT}',
               '--network', 'none',  # Disable internet access
-              '--ulimit', 'nproc=50:50',  # Limit the number of processes
               '-i',
               config["image"]
 ]           + config["run_cmd"]("/usr/src/app")
@@ -123,11 +122,12 @@ def execute_code():
             try:
                 result = subprocess.run(run_cmd, capture_output=True, text=True, input=test_input, timeout=EXECUTION_TIMEOUT)
             except subprocess.TimeoutExpired:
+                print("Timeout")
                 def stop_container():
+
                     try:
                         subprocess.run(
                             ['docker', 'stop', container_name],
-                            capture_output=True, text=True, check=True
                         )
                     except Exception as e:
                         logging.error(f"Error stopping container: {e}")
