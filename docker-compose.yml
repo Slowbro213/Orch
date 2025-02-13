@@ -1,0 +1,21 @@
+services:
+  executor:
+    image: executor
+    environment:
+      - FLASK_ENV=production
+    ports:
+      - "5000" # Dynamically assign host ports for each instance
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock
+      - /tmp/:/tmp/
+    restart: always
+
+  nginx:
+    image: nginx:alpine
+    ports:
+      - "80:80"
+    volumes:
+      - ./nginx.conf:/etc/nginx/nginx.conf
+    depends_on:
+      - executor
+    restart: always
