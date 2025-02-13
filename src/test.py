@@ -17,9 +17,9 @@ app = Flask(__name__)
 
 # Configuration from environment variables
 EXECUTION_TIMEOUT = int(os.getenv('EXECUTION_TIMEOUT', 5))
-PYTHON_IMAGE = os.getenv('PYTHON_IMAGE', 'python:3.13-slim')
-GCC_IMAGE = os.getenv('GCC_IMAGE', 'gcc')
-OPENJDK_IMAGE = os.getenv('OPENJDK_IMAGE', 'openjdk')
+PYTHON_IMAGE = os.getenv('PYTHON_IMAGE', 'python:3.13-alpine')
+GCC_IMAGE = os.getenv('GCC_IMAGE', 'gcc:latest')
+OPENJDK_IMAGE = os.getenv('OPENJDK_IMAGE', 'openjdk:alpine')
 CONTAINER_MEMORY_LIMIT = os.getenv('CONTAINER_MEMORY_LIMIT', '100m')
 CONTAINER_CPU_LIMIT = float(os.getenv('CONTAINER_CPU_LIMIT', '0.5'))
 
