@@ -41,4 +41,4 @@ ENV HOST_TMP_DIR=/tmp/
 RUN mkdir -p $HOST_TMP_DIR && chmod 777 $HOST_TMP_DIR
 
 # Change to the src/ directory and run Gunicorn with dynamic port
-CMD ["sh", "-c", "cd src && gunicorn -w 4 -b 0.0.0.0:$PORT test:app"]
+CMD ["sh", "-c", "cd src && gunicorn -k gevent -w 2 --threads 4 -b 0.0.0.0:$PORT test:app"]

@@ -1,0 +1,9 @@
+{
+    "text": "def shuma(arr):\n  for x in range(10000000):\n    a=5\n  return sum(arr)",
+    "language": "python",
+    "template": "import sys\nimport json\nn = int(input())\narr = list(map(int, input().split()))\nprint(shuma(arr))",
+    "tests": {
+        "3\n1 2 3": "6",
+        "5\n1 2 3 4 5": "15"
+    }
+}

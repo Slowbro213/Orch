@@ -7,7 +7,7 @@ services:
       - "5000" # Dynamically assign host ports for each instance
     volumes:
       - /var/run/docker.sock:/var/run/docker.sock
-      - /tmp/:/tmp/
+      - /dev/shm/:/dev/shm/
     restart: always
 
   nginx:
