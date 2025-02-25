@@ -169,6 +169,9 @@ def execute_code():
         # Clean up the temporary directory
         if os.path.exists(temp_dir):
             subprocess.run(['rm', '-rf', temp_dir])
+
+
+        print("I worked!")
         
         return jsonify({'message': "Success!", 'code': 0})
     
