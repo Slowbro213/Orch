@@ -42,10 +42,18 @@ LANGUAGE_CONFIGS = {
     "java": {
         "image": OPENJDK_IMAGE,
         "file_ext": ".java",
-        "compile_cmd": lambda dir: ["javac", f"{dir}/user_code.java"],
+        "compile_cmd": lambda dir: ["javac", "-g:none", "-O", "-J-Xms16m", "-J-Xmx32m", f"{dir}/user_code.java"],
         "code_order": lambda user_code, template: template + '\n' + user_code,
-        "run_cmd": lambda dir: ["java", "-cp", dir, "Main"]  # Assumes the main class is named "Main"
-    }
+        "run_cmd": lambda dir: [
+            "java",
+            "-Xms32m",
+            "-Xmx64m",
+            "-XX:+UseSerialGC",
+            "-XX:+DisableExplicitGC",
+            "-Djava.security.manager",
+            "-cp", dir, "Main"
+        ]
+        }
 }
 
 @app.route('/execute', methods=['POST'])
@@ -113,7 +121,6 @@ def execute_code():
               '--cap-drop=ALL', '--security-opt=no-new-privileges', '--read-only',
               '--tmpfs', '/dev/shm',  # Writable /dev/shm for temporary files
               '-v', f'{temp_dir}:/usr/src/app:ro',  # Mount /usr/src/app as read-only
-              f'--memory={CONTAINER_MEMORY_LIMIT}', f'--cpus={CONTAINER_CPU_LIMIT}',
               '--network', 'none',  # Disable internet access
               '-i',
               config["image"]
